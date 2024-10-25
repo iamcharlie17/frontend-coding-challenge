@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Product } from "@/types";
 import { ProductModal } from "@/views/products/productModal/productModal";
 import { BackToHome } from "@/components/backToHome/backToHome";
@@ -20,11 +20,40 @@ export const Products: React.FC = () => {
 
   const handleOpenModal = useCallback((product: Product) => {
     setSelectedProduct(product);
+    history.pushState({ modalOpen: true, productId: product.id }, '', `?modal=open&productId=${product.id}`);
   }, []);
 
   const handleCloseModal = useCallback(() => {
     setSelectedProduct(null);
+    history.pushState({}, '', window.location.pathname);
   }, []);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('productId'); 
+
+    if (urlParams.get('modal') === 'open' && productId) {
+      const productToOpen = PRODUCTS_DATA.find(p => p.id === productId); 
+      setSelectedProduct(productToOpen || null); 
+    }
+  }, []); 
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.modalOpen) {
+        const productId = event.state.productId; 
+        const productToOpen = PRODUCTS_DATA.find(p => p.id === productId); 
+        setSelectedProduct(productToOpen || null); 
+      } else {
+        setSelectedProduct(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []); 
 
   return (
     <div>
