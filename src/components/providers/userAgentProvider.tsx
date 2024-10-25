@@ -45,7 +45,7 @@ export const UserAgentProvider: React.FC<UserAgentProviderProps> = ({
   );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return; 
     setUserAgent(window.navigator.userAgent);
   }, []);
 
